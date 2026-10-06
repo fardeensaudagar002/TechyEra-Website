@@ -1,0 +1,63 @@
+import type { Stat } from "@/types";
+
+/**
+ * Central site configuration.
+ * Update company details, contact information, statistics and social links here.
+ */
+export const site = {
+  name: "Techyera Consultancy Services",
+  shortName: "Techyera",
+  tagline: "Engineering Technology. Enabling Growth.",
+  description:
+    "Techyera Consultancy Services delivers software engineering, cloud, data, AI, and digital transformation solutions for modern businesses.",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.techyera.co.in",
+  locale: "en_IN",
+  foundedYear: undefined as number | undefined,
+
+  contact: {
+    email: "hello@techyera.co.in",
+    careersEmail: "careers@techyera.co.in",
+    /** Replace with the real number — displayed as-is and used for tel: links when valid */
+    phone: "+91 XXXXX XXXXX",
+    phoneHref: "", // e.g. "+919876543210" once confirmed
+    country: "India",
+    /** Leave empty until the registered office address is confirmed */
+    address: "",
+    /** Google Maps embed URL (Share → Embed a map → copy the src). Empty shows a placeholder. */
+    mapEmbedUrl: "",
+    hours: "Monday – Friday, 9:30 am – 6:30 pm IST",
+  },
+
+  social: {
+    linkedin: "https://www.linkedin.com/",
+    x: "https://x.com/",
+    instagram: "https://www.instagram.com/",
+    youtube: "https://www.youtube.com/",
+  },
+
+  /**
+   * Headline statistics shown with animated counters.
+   * Figures supplied in the website brief — confirm before launch.
+   * Set `showStats` to false to hide the strip entirely.
+   */
+  showStats: true,
+  stats: [
+    { value: 50, suffix: "+", label: "Technology professionals" },
+    { value: 100, suffix: "+", label: "Projects delivered" },
+    { value: 20, suffix: "+", label: "Technology skills" },
+    { value: 10, suffix: "+", label: "Industries served" },
+  ] satisfies Stat[],
+} as const;
+
+export const navigation = [
+  { label: "Home", href: "/" },
+  { label: "Services", href: "/services" },
+  { label: "Industries", href: "/industries" },
+  { label: "Solutions", href: "/solutions" },
+  { label: "Insights", href: "/insights" },
+  { label: "Careers", href: "/careers" },
+  { label: "About Us", href: "/about" },
+  { label: "Contact Us", href: "/contact" },
+] as const;
+
+export const primaryCta = { label: "Talk to Our Experts", href: "/contact" } as const;
