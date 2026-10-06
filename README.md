@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# TechyEra-Website
-The complete codebase of TechyEra Website
-=======
 # Techyera Consultancy Services — Corporate Website
 
 Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Framer Motion · React Hook Form + Zod · Lucide icons
