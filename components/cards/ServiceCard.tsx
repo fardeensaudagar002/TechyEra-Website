@@ -7,7 +7,7 @@ import type { Service } from "@/types";
 export function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
-      href={`/services#${service.slug}`}
+      href={`/services/${service.slug}`}
       className="group relative flex h-full flex-col bg-white p-7 transition-colors duration-200 hover:bg-mist/70 md:p-8"
     >
       <span aria-hidden className="absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-accent transition-transform duration-300 group-hover:scale-x-100" />

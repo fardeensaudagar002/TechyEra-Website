@@ -47,7 +47,9 @@ export default function IndustriesPage() {
                   <div className="flex items-start gap-4">
                     <IconTile name={ind.icon} />
                     <div>
-                      <h2 className="text-[1.5rem] leading-tight">{ind.title}</h2>
+                      <h2 className="text-[1.5rem] leading-tight">
+                        <Link href={`/industries/${ind.slug}`} className="hover:text-accent-strong">{ind.title}</Link>
+                      </h2>
                       <p className="mt-1.5 text-[0.9375rem] text-muted">{ind.summary}</p>
                     </div>
                   </div>
@@ -64,16 +66,21 @@ export default function IndustriesPage() {
                       {ind.relatedServices.map((slug) => {
                         const s = getService(slug)!;
                         return (
-                          <Link key={slug} href={`/services#${slug}`} className="rounded-[6px] bg-mist px-2.5 py-1 font-medium text-ink-2 hover:bg-accent-soft hover:text-accent-strong">
+                          <Link key={slug} href={`/services/${slug}`} className="rounded-[6px] bg-mist px-2.5 py-1 font-medium text-ink-2 hover:bg-accent-soft hover:text-accent-strong">
                             {s.shortTitle}
                           </Link>
                         );
                       })}
-                      {study && (
-                        <Link href={`/case-studies/${study.slug}`} className="ml-auto font-semibold text-accent hover:text-accent-strong">
-                          See an example engagement
+                      <span className="ml-auto flex flex-wrap gap-x-5 gap-y-1">
+                        {study && (
+                          <Link href={`/case-studies/${study.slug}`} className="font-semibold text-accent hover:text-accent-strong">
+                            See an example engagement
+                          </Link>
+                        )}
+                        <Link href={`/industries/${ind.slug}`} className="font-semibold text-accent hover:text-accent-strong">
+                          Learn more<span className="sr-only"> about {ind.title}</span>
                         </Link>
-                      )}
+                      </span>
                     </div>
                   </div>
                 </article>

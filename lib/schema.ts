@@ -13,8 +13,9 @@ export const organizationSchema = () => ({
   slogan: site.tagline,
   description: site.description,
   email: site.contact.email,
+  ...(site.contact.phoneHref ? { telephone: site.contact.phoneHref } : {}),
   address: { "@type": "PostalAddress", addressCountry: "IN" },
-  sameAs: Object.values(site.social),
+  sameAs: Object.values(site.social).filter(Boolean),
 });
 
 export const articleSchema = (a: Article) => ({
@@ -48,7 +49,19 @@ export const jobPostingSchema = (j: Job) => ({
   directApply: true,
 });
 
-export const breadcrumbSchema = (items: { name: string; href: string }[]) => ({
+export const serviceSchema = (s: { name: string; description: string; path: string; serviceType: string; audience?: string }) => ({
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: s.name,
+  serviceType: s.serviceType,
+  description: s.description,
+  url: abs(s.path),
+  provider: { "@type": "Organization", name: site.name, url: site.url },
+  areaServed: [{ "@type": "Country", name: "India" }, "Worldwide"],
+  ...(s.audience ? { audience: { "@type": "BusinessAudience", name: s.audience } } : {}),
+});
+
+export const breadcrumbSchema =(items: { name: string; href: string }[]) => ({
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, item: abs(it.href) })),

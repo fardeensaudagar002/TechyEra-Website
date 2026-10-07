@@ -10,6 +10,16 @@ export const serviceOptions = [
   "Other",
 ] as const;
 
+/** Pre-selects the contact form's service when linked from a service page: /contact?service=<slug> */
+export const serviceOptionBySlug: Record<string, (typeof serviceOptions)[number]> = {
+  "software-engineering": "Software Development",
+  "data-analytics": "Data & Analytics",
+  "cloud-devops": "Cloud",
+  "ai-machine-learning": "AI/ML",
+  "digital-transformation": "Digital Transformation",
+  "quality-engineering": "QA",
+};
+
 export const budgetOptions = [
   "Not sure yet",
   "Under $10k",
@@ -37,6 +47,9 @@ const optionalUrl = z
   .trim()
   .refine((v) => v === "" || /^https?:\/\/[^\s.]+\.[^\s]{2,}/i.test(v), "Enter a full URL starting with https://");
 
+/** A select value that must be one of the listed options (the server rejects anything else). */
+const oneOf = (options: readonly string[], message: string) => z.string().refine((v) => options.includes(v), message);
+
 export const contactSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name"),
   company: z.string().trim().min(2, "Enter your company name"),
@@ -45,9 +58,9 @@ export const contactSchema = z.object({
     .string()
     .trim()
     .refine((v) => v === "" || phoneRegex.test(v), "Enter a valid phone number with country code"),
-  country: z.string().min(1, "Select your country"),
-  service: z.string().min(1, "Select the service you're interested in"),
-  budget: z.string().min(1, "Select an approximate budget"),
+  country: oneOf(countryOptions, "Select your country"),
+  service: oneOf(serviceOptions, "Select the service you're interested in"),
+  budget: z.string().refine((v) => v === "" || (budgetOptions as readonly string[]).includes(v), "Select a budget range from the list"),
   message: z.string().trim().min(20, "Tell us a little more — at least 20 characters").max(3000, "Keep your message under 3,000 characters"),
 });
 export type ContactValues = z.infer<typeof contactSchema>;

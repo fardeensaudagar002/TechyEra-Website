@@ -19,20 +19,25 @@ export const site = {
     careersEmail: "careers@techyera.co.in",
     /** Replace with the real number — displayed as-is and used for tel: links when valid */
     phone: "+91 8770160684",
-    phoneHref: "", // e.g. "+919876543210" once confirmed
+    phoneHref: "+918770160684", // digits only, used for tap-to-call links
     country: "India",
     /** Leave empty until the registered office address is confirmed */
     address: "",
-    /** Google Maps embed URL (Share → Embed a map → copy the src). Empty shows a placeholder. */
+    /** Google Maps embed URL (Share → Embed a map → copy the src). Empty hides the map. */
     mapEmbedUrl: "",
     hours: "Monday – Friday, 9:30 am – 6:30 pm IST",
+    /** Calendly / Cal.com / Google booking page link. Empty hides the "Book a call" button. */
+    bookingUrl: "",
+    /** WhatsApp Business number, digits with country code, e.g. "918770160684". Empty hides the button. */
+    whatsapp: "",
   },
 
+  /** Company profile URLs. Leave a platform empty to hide it from the footer and structured data. */
   social: {
-    linkedin: "https://www.linkedin.com/",
-    x: "https://x.com/",
-    instagram: "https://www.instagram.com/",
-    youtube: "https://www.youtube.com/",
+    linkedin: "",
+    x: "",
+    instagram: "",
+    youtube: "",
   },
 
   /**

@@ -1,5 +1,6 @@
-import { Mail, Phone, MapPin, Clock, Briefcase, ArrowRight } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Briefcase, ArrowRight, CalendarDays, MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { buttonClass } from "@/components/ui/Button";
 import { PageHero } from "@/components/sections/PageHero";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { MapPlaceholder } from "@/components/sections/MapPlaceholder";
@@ -37,9 +38,11 @@ export default function ContactPage() {
                 <Detail icon={<Mail className="h-5 w-5" />} label="Email">
                   <a href={`mailto:${c.email}`} className="font-semibold text-accent hover:underline">{c.email}</a>
                 </Detail>
-                <Detail icon={<Phone className="h-5 w-5" />} label="Phone">
-                  {c.phoneHref ? <a href={`tel:${c.phoneHref}`} className="font-semibold text-ink hover:text-accent">{c.phone}</a> : <span className="font-semibold text-ink">{c.phone}</span>}
-                </Detail>
+                {c.phone && (
+                  <Detail icon={<Phone className="h-5 w-5" />} label="Phone">
+                    {c.phoneHref ? <a href={`tel:${c.phoneHref}`} className="font-semibold text-ink hover:text-accent">{c.phone}</a> : <span className="font-semibold text-ink">{c.phone}</span>}
+                  </Detail>
+                )}
                 <Detail icon={<MapPin className="h-5 w-5" />} label="Office">
                   <span className="font-semibold text-ink">{c.address || c.country}</span>
                 </Detail>
@@ -48,6 +51,24 @@ export default function ContactPage() {
                 </Detail>
               </ul>
             </div>
+            {(c.bookingUrl || c.whatsapp) && (
+              <div className="rounded-[16px] border border-line bg-white p-6 md:p-8">
+                <h2 className="text-[1.25rem]">Prefer to talk?</h2>
+                <p className="mt-2 text-[0.9375rem] text-muted">Skip the form and speak to a specialist directly.</p>
+                <div className="mt-5 flex flex-col gap-3">
+                  {c.bookingUrl && (
+                    <a href={c.bookingUrl} target="_blank" rel="noopener noreferrer" className={buttonClass("primary", "md", "w-full")}>
+                      <CalendarDays aria-hidden className="h-4 w-4" /> Book a 30-minute call<span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  )}
+                  {c.whatsapp && (
+                    <a href={`https://wa.me/${c.whatsapp}?text=${encodeURIComponent("Hi Techyera, I'd like to discuss a project.")}`} target="_blank" rel="noopener noreferrer" className={buttonClass("secondary", "md", "w-full")}>
+                      <MessageCircle aria-hidden className="h-4 w-4" /> Chat on WhatsApp<span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
             <Link href="/careers" className="group flex items-center gap-4 rounded-[16px] border border-line bg-white p-6 transition-colors hover:border-accent-line">
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-[10px] bg-accent-soft text-accent"><Briefcase aria-hidden className="h-5 w-5" /></span>
               <span className="flex-1">
