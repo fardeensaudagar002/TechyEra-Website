@@ -15,10 +15,10 @@ export const site = {
   foundedYear: undefined as number | undefined,
 
   contact: {
-    email: "hello@techyera.co.in",
+    email: "support@techyera.co.in",
     careersEmail: "careers@techyera.co.in",
     /** Replace with the real number — displayed as-is and used for tel: links when valid */
-    phone: "+91 XXXXX XXXXX",
+    phone: "+91 8770160684",
     phoneHref: "", // e.g. "+919876543210" once confirmed
     country: "India",
     /** Leave empty until the registered office address is confirmed */
@@ -42,10 +42,10 @@ export const site = {
    */
   showStats: true,
   stats: [
-    { value: 50, suffix: "+", label: "Technology professionals" },
-    { value: 100, suffix: "+", label: "Projects delivered" },
-    { value: 20, suffix: "+", label: "Technology skills" },
-    { value: 10, suffix: "+", label: "Industries served" },
+    { value: 500, suffix: "+", label: "Technology professionals" },
+    { value: 300, suffix: "+", label: "Projects delivered" },
+    { value: 90, suffix: "+", label: "Technology skills" },
+    { value: 15, suffix: "+", label: "Industries served" },
   ] satisfies Stat[],
 } as const;
 

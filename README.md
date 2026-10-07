@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# TechyEra-Website
-The complete codebase of TechyEra Website
-=======
 # Techyera Consultancy Services — Corporate Website
 
 Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Framer Motion · React Hook Form + Zod · Lucide icons
@@ -80,4 +76,3 @@ Email addresses such as `hello@techyera.co.in` and `careers@techyera.co.in` appe
 - Structured data: Organization, Article, JobPosting and BreadcrumbList schema (JSON-LD)
 - Accessibility: skip link, landmarks, keyboard-trappable mobile menu (Esc closes it), visible focus, labelled fields with linked errors, `prefers-reduced-motion` support
 - Performance: self-hosted variable font, SVG-only illustrations (no stock images), static pre-rendering, about 103 kB of shared JS
->>>>>>> ebb4899 (first commit of this website)

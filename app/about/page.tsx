@@ -1,11 +1,10 @@
 import { PageHero } from "@/components/sections/PageHero";
 import { CTASection } from "@/components/sections/CTASection";
 import { StatsSection } from "@/components/sections/StatsSection";
-import { LeaderCard } from "@/components/cards/LeaderCard";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { approachSteps, leadership, values } from "@/data/company";
+import { approachSteps, values } from "@/data/company";
 import { services } from "@/data/services";
 import { pageMetadata } from "@/lib/seo";
 
@@ -103,16 +102,6 @@ export default function AboutPage() {
           <p className="mt-14 inline-flex items-center gap-2 text-sm text-white/60">
             <span aria-hidden className="h-px w-8 bg-white/30" /> Evolve feeds the next Discover — delivery is a continuous loop.
           </p>
-        </div>
-      </section>
-
-      {/* Leadership */}
-      <section id="leadership" className="section scroll-mt-20" aria-labelledby="leadership-heading">
-        <div className="container-x">
-          <SectionHeader id="leadership-heading" title="Leadership" intro="The team responsible for Techyera’s direction, technology standards and delivery quality." />
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {leadership.map((l) => <li key={l.role}><LeaderCard leader={l} /></li>)}
-          </ul>
         </div>
       </section>
 
