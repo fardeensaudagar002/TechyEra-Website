@@ -32,7 +32,7 @@ export default function SolutionsPage() {
                 <article key={s.slug} id={s.slug} className="scroll-mt-28 rounded-[14px] border border-line bg-white p-7 md:p-9">
                   <header className="flex flex-col gap-2 border-b border-line pb-6 sm:flex-row sm:items-baseline sm:justify-between">
                     <h2 className="text-[1.5rem] leading-snug">{s.title}</h2>
-                    {svc && <ArrowLink href={`/services#${svc.slug}`} className="text-sm">{svc.title}</ArrowLink>}
+                    {svc && <ArrowLink href={`/services/${svc.slug}`} className="text-sm">{svc.title}</ArrowLink>}
                   </header>
                   <ol className="mt-7 grid gap-8 md:grid-cols-2 lg:grid-cols-[1fr_1.15fr_0.9fr_1fr] lg:gap-10">
                     <Stage n={1} title="Problem"><p>{s.problem}</p></Stage>

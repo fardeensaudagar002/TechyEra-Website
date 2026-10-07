@@ -5,7 +5,7 @@ import type { Industry } from "@/types";
 export function IndustryCard({ industry }: { industry: Industry }) {
   return (
     <Link
-      href={`/industries#${industry.slug}`}
+      href={`/industries/${industry.slug}`}
       className="group flex h-full flex-col rounded-[10px] border border-line bg-white p-4 sm:p-5 transition-[border-color,box-shadow] duration-200 hover:border-accent-line hover:shadow-[var(--shadow-card)]"
     >
       <Icon name={industry.icon} className="h-6 w-6 text-accent" />

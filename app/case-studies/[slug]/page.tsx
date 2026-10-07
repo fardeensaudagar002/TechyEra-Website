@@ -118,13 +118,13 @@ export default async function CaseStudyPage({ params }: Params) {
           <dl className="divide-y divide-line rounded-[12px] border border-line bg-white text-[0.9375rem]">
             <Meta label="Client">{c.client}</Meta>
             <Meta label="Industry">
-              {industry && <Link href={`/industries#${industry.slug}`} className="text-accent hover:underline">{industry.title}</Link>}
+              {industry && <Link href={`/industries/${industry.slug}`} className="text-accent hover:underline">{industry.title}</Link>}
             </Meta>
             <Meta label="Services">
               <ul className="space-y-1">
                 {c.services.map((s) => {
                   const svc = getService(s);
-                  return svc ? <li key={s}><Link href={`/services#${s}`} className="text-accent hover:underline">{svc.title}</Link></li> : null;
+                  return svc ? <li key={s}><Link href={`/services/${s}`} className="text-accent hover:underline">{svc.title}</Link></li> : null;
                 })}
               </ul>
             </Meta>

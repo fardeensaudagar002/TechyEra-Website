@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle, Send } from "lucide-react";
 import { Field, Input, Select, Textarea } from "./fields";
 import { FormError, FormSuccess } from "./FormStatus";
 import { buttonClass } from "@/components/ui/Button";
-import { budgetOptions, contactSchema, countryOptions, serviceOptions, submitForm, type ContactValues } from "@/lib/forms";
+import { budgetOptions, contactSchema, countryOptions, serviceOptionBySlug, serviceOptions, submitForm, type ContactValues } from "@/lib/forms";
 import { site } from "@/data/site";
 
 export function ContactForm() {
@@ -17,12 +17,19 @@ export function ContactForm() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ContactValues>({
     resolver: zodResolver(contactSchema),
     mode: "onTouched",
     defaultValues: { name: "", company: "", email: "", phone: "", country: "", service: "", budget: "", message: "" },
   });
+
+  // pre-select the service when arriving from a service page (/contact?service=cloud-devops)
+  useEffect(() => {
+    const option = serviceOptionBySlug[new URLSearchParams(window.location.search).get("service") ?? ""];
+    if (option) setValue("service", option);
+  }, [setValue]);
 
   const onSubmit = async (values: ContactValues, e?: React.BaseSyntheticEvent) => {
     const website = ((e?.target as HTMLFormElement | undefined)?.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "";
@@ -75,7 +82,7 @@ export function ContactForm() {
         <Field id="service" label="Service interested in" required error={errors.service?.message}>
           <Select id="service" options={serviceOptions} placeholder="Select a service" invalid={errors.service?.message} {...register("service")} />
         </Field>
-        <Field id="budget" label="Project budget" required error={errors.budget?.message} className="sm:col-span-2">
+        <Field id="budget" label="Project budget" error={errors.budget?.message} className="sm:col-span-2">
           <Select id="budget" options={budgetOptions} placeholder="Select an approximate range" invalid={errors.budget?.message} {...register("budget")} />
         </Field>
         <Field id="message" label="Message" required error={errors.message?.message} hint="Briefly describe your goals, timeline and current systems." className="sm:col-span-2">

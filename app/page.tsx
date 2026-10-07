@@ -84,7 +84,7 @@ export default function HomePage() {
             <ul className="grid overflow-hidden rounded-[12px] border border-line sm:grid-cols-2">
               {services.map((s, i) => (
                 <li key={s.slug} className={`border-line ${i < services.length - 1 ? "border-b" : ""} ${i % 2 === 0 ? "sm:border-r" : ""} ${i >= services.length - 2 ? "sm:border-b-0" : ""}`}>
-                  <Link href={`/services#${s.slug}`} className="group flex items-center gap-4 p-5 transition-colors hover:bg-mist md:p-6">
+                  <Link href={`/services/${s.slug}`} className="group flex items-center gap-4 p-5 transition-colors hover:bg-mist md:p-6">
                     <IconTile name={s.icon} size="sm" />
                     <span className="flex-1 text-[1rem] font-semibold text-ink">{s.title}</span>
                     <ArrowRight aria-hidden className="h-4 w-4 text-line-strong transition-all group-hover:translate-x-0.5 group-hover:text-accent" />

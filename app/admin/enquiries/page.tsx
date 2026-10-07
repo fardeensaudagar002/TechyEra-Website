@@ -59,7 +59,7 @@ export default async function EnquiriesPage({ searchParams }: { searchParams: Pr
                     <span className="block text-sm text-muted">{e.company} · {e.country}</span>
                   </td>
                   <td className="px-4 py-3.5 text-ink-2">{e.service}</td>
-                  <td className="whitespace-nowrap px-4 py-3.5 text-ink-2">{e.budget}</td>
+                  <td className="whitespace-nowrap px-4 py-3.5 text-ink-2">{e.budget || <span className="text-muted">—</span>}</td>
                   <td className="max-w-[18rem] px-4 py-3.5 text-muted"><span className="line-clamp-2">{e.message}</span></td>
                   <td className="whitespace-nowrap px-4 py-3.5 text-muted">{formatWhen(e.created_at)}</td>
                   <td className="px-4 py-3.5"><StatusBadge status={e.status} /></td>

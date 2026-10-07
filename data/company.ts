@@ -1,15 +1,9 @@
 import type { Client, IconName, Leader, TechnologyGroup, Testimonial } from "@/types";
 
 /* ---------------- Clients / partners ----------------
-   Add real logos to /public/clients and set `logo`. Placeholder marks render until then. */
-export const clients: Client[] = [
-  { name: "Client 01" },
-  { name: "Client 02" },
-  { name: "Client 03" },
-  { name: "Client 04" },
-  { name: "Client 05" },
-  { name: "Client 06" },
-];
+   Intentionally empty: add only clients who approved being named, e.g.
+   { name: "Acme Corp", logo: "/clients/acme.svg" }. The strip hides when empty. */
+export const clients: Client[] = [];
 
 /* ---------------- Testimonials ----------------
    Intentionally empty: add only approved, attributable quotes. The section hides when empty. */
