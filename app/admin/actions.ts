@@ -7,9 +7,9 @@ import { adminConfigured, checkPassword, createSessionToken, SESSION_COOKIE, ses
 import { requireAdmin } from "@/lib/server/session";
 import { query } from "@/lib/server/db";
 import { applicationStatuses, enquiryStatuses, getApplication } from "@/lib/server/submissions";
-import { emailConfigured, sendEmail } from "@/lib/server/email";
+import { emailConfigured, sendEmail, sendTestEmail } from "@/lib/server/email";
 import { after } from "next/server";
-import { applicationStatusEmail } from "@/lib/server/email-templates";
+import { applicationStatusEmail, testEmail } from "@/lib/server/email-templates";
 
 const MAX_ATTEMPTS = 8; // failed sign-ins allowed per IP in 15 minutes
 
@@ -56,6 +56,15 @@ export async function updateApplication(form: FormData) {
 
   revalidatePath("/admin", "layout");
   redirect(`/admin/applications/${id}?saved=1${email ? `&email=${email}` : ""}`);
+}
+
+export async function sendTestEmailAction(form: FormData) {
+  await requireAdmin();
+  const to = String(form.get("to") ?? "").trim();
+  const result = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)
+    ? await sendTestEmail(to, testEmail())
+    : { ok: false, message: "Enter a valid email address to send the test to." };
+  redirect(`/admin/emails?test=${result.ok ? "ok" : "fail"}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(result.message)}`);
 }
 
 export async function deleteApplication(form: FormData) {

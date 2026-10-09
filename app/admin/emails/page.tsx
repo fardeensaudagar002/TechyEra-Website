@@ -1,5 +1,8 @@
 import { requireAdmin } from "@/lib/server/session";
-import { adminRecipients, emailConfigured, emailProvider, fromAddress } from "@/lib/server/email";
+import { adminRecipients, emailConfigured, emailConnectionInfo, emailProvider, fromAddress } from "@/lib/server/email";
+import { adminInput } from "@/components/admin/ui";
+import { SubmitButton } from "@/components/admin/SubmitButton";
+import { sendTestEmailAction } from "../actions";
 import {
   applicationAlert, applicationReceived, applicationStatusEmail, emailableStatuses, enquiryAlert, enquiryReceived,
   type ApplicationData, type EmailContent, type EnquiryData,
@@ -7,6 +10,8 @@ import {
 import { site } from "@/data/site";
 
 export const metadata = { title: "Email templates" };
+// the test-email action waits for the mail server, which can be slow to answer
+export const maxDuration = 60;
 
 const enquiry: EnquiryData = {
   id: 0, name: "Priya Sharma", company: "Acme Retail Pvt Ltd", email: "priya@example.com", phone: "+91 98765 43210", country: "India",
@@ -19,7 +24,7 @@ const application: ApplicationData = {
   resumeName: "Rahul_Verma_Resume.pdf",
 };
 
-export default async function EmailTemplatesPage() {
+export default async function EmailTemplatesPage({ searchParams }: { searchParams: Promise<{ test?: string; to?: string; msg?: string }> }) {
   await requireAdmin();
   const groups: { title: string; note: string; items: { name: string; to: string; content: EmailContent }[] }[] = [
     {
@@ -47,6 +52,7 @@ export default async function EmailTemplatesPage() {
 
   const configured = emailConfigured();
   const provider = emailProvider();
+  const { test, to, msg } = await searchParams;
   return (
     <>
       <h1 className="text-[1.75rem]">Email templates</h1>
@@ -57,8 +63,9 @@ export default async function EmailTemplatesPage() {
         <dl className="mt-3 grid gap-x-8 gap-y-2 text-[0.9375rem] sm:grid-cols-[10rem_1fr]">
           <dt className="text-muted">Status</dt>
           <dd className={configured ? "font-semibold text-success" : "font-semibold text-[#7a5200]"}>
-            {configured ? `Active — sending through ${provider === "SMTP" ? `SMTP (${process.env.SMTP_HOST})` : "Resend"}` : "Not set up — emails are recorded but not delivered (add the SMTP_* settings)"}
+            {configured ? `Configured — sending through ${provider}` : "Not set up — emails are recorded but not delivered (add the SMTP_* settings)"}
           </dd>
+          {configured && <><dt className="text-muted">Connection</dt><dd className="break-words text-ink">{emailConnectionInfo()}</dd></>}
           <dt className="text-muted">Sent from</dt>
           <dd className="text-ink">{fromAddress()}</dd>
           <dt className="text-muted">Team alerts go to</dt>
@@ -66,6 +73,18 @@ export default async function EmailTemplatesPage() {
           <dt className="text-muted">Replies go to</dt>
           <dd className="text-ink">{site.contact.email} <span className="text-muted">(team alerts reply straight to the visitor)</span></dd>
         </dl>
+
+        <form action={sendTestEmailAction} className="mt-6 border-t border-line pt-5">
+          <label htmlFor="test-to" className="block text-sm font-semibold text-ink">Send a test email</label>
+          <p className="mt-0.5 text-[0.8125rem] text-muted">Checks the sign-in to the mail server and sends a real message. It can take up to a minute — mail servers can be slow to answer.</p>
+          <div className="mt-2.5 flex flex-wrap gap-3">
+            <input id="test-to" name="to" type="email" required defaultValue={to || site.contact.email} className={`${adminInput} w-full max-w-sm`} />
+            <SubmitButton pendingLabel="Sending… (up to a minute)" className="h-10 rounded-[8px] bg-ink px-4 text-sm font-semibold text-white hover:bg-accent disabled:opacity-60">Send test email</SubmitButton>
+          </div>
+          {test && msg && (
+            <p role="status" className={`mt-3 rounded-[8px] px-3 py-2 text-sm font-medium ${test === "ok" ? "bg-success-soft text-success" : "bg-danger-soft text-danger"}`}>{msg}</p>
+          )}
+        </form>
       </section>
 
       {groups.map((g) => (
