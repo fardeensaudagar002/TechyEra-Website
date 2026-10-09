@@ -39,6 +39,10 @@ export async function listEnquiries(f: { status?: string; service?: string; q?: 
 }
 export const getEnquiry = async (id: number) => (await query<EnquiryRow>("SELECT * FROM enquiries WHERE id = $1", [id]))[0];
 
+export interface EmailLogRow { id: number; created_at: Date; kind: string; to_email: string; subject: string; status: string; error: string }
+export const listEmails = (refType: "enquiry" | "application", refId: number) =>
+  query<EmailLogRow>("SELECT id, created_at, kind, to_email, subject, status, error FROM email_log WHERE ref_type = $1 AND ref_id = $2 ORDER BY created_at DESC, id DESC", [refType, refId]);
+
 export async function counts() {
   const [a] = await query<{ total: number; fresh: number }>("SELECT count(*)::int AS total, count(*) FILTER (WHERE status = 'new')::int AS fresh FROM applications");
   const [e] = await query<{ total: number; fresh: number }>("SELECT count(*)::int AS total, count(*) FILTER (WHERE status = 'new')::int AS fresh FROM enquiries");

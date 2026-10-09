@@ -1,10 +1,13 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { applicationSchema, MAX_RESUME_BYTES } from "@/lib/forms";
 import { getJob } from "@/data/jobs";
 import { query } from "@/lib/server/db";
-import { notify } from "@/lib/server/notify";
+import { adminRecipients, sendEmail } from "@/lib/server/email";
+import { applicationAlert, applicationReceived } from "@/lib/server/email-templates";
 
 export const runtime = "nodejs";
+// gives the background emails time to finish on serverless hosts (mail servers can be slow)
+export const maxDuration = 60;
 
 const fieldsSchema = applicationSchema.omit({ resume: true, consent: true });
 
@@ -44,10 +47,13 @@ export async function POST(req: Request) {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
       [job.slug, job.title, v.fullName, v.email, v.phone, v.location, v.experience, v.linkedin, v.portfolio, v.coverLetter, name, type, file.size, Buffer.from(bytes)],
     );
-    await notify(`New application: ${job.title} — ${v.fullName}`, [
-      ["Position", job.title], ["Name", v.fullName], ["Email", v.email], ["Phone", v.phone], ["Location", v.location],
-      ["Experience", v.experience], ["LinkedIn", v.linkedin], ["Portfolio", v.portfolio], ["Resume", name], ["Cover letter", v.coverLetter],
-    ], `/admin/applications/${row.id}`);
+    // emails go out after the response, so the applicant never waits on them
+    const data = { id: row.id, jobTitle: job.title, jobSlug: job.slug, resumeName: name, ...v };
+    const ref = { refType: "application", refId: row.id } as const;
+    after(() => Promise.all([
+      sendEmail(adminRecipients(), applicationAlert(data), { ...ref, kind: "alert" }),
+      sendEmail(v.email, applicationReceived(data), { ...ref, kind: "confirmation" }),
+    ]));
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Failed to save application", e);

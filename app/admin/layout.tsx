@@ -26,6 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               { href: "/admin", label: "Overview" },
               { href: "/admin/applications", label: "Job applications", count: c.applications.fresh },
               { href: "/admin/enquiries", label: "Enquiries", count: c.enquiries.fresh },
+              { href: "/admin/emails", label: "Email templates" },
             ]} />
             <div className="ml-auto flex items-center gap-4 text-sm font-medium">
               <Link href="/" target="_blank" className="inline-flex items-center gap-1.5 text-muted hover:text-ink">View website <ExternalLink aria-hidden className="h-3.5 w-3.5" /></Link>

@@ -1,19 +1,33 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Download, FileText } from "lucide-react";
-import { adminInput, Detail, StatusBadge } from "@/components/admin/ui";
+import { adminInput, Detail, EmailHistory, StatusBadge } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/ConfirmSubmit";
 import { requireAdmin } from "@/lib/server/session";
-import { applicationStatuses, formatWhen, getApplication } from "@/lib/server/submissions";
+import { applicationStatuses, formatWhen, getApplication, listEmails } from "@/lib/server/submissions";
+import { emailConfigured } from "@/lib/server/email";
+import { emailableStatuses } from "@/lib/server/email-templates";
 import { deleteApplication, updateApplication } from "../../actions";
 
 export const metadata = { title: "Application" };
+// gives the background status email time to finish on serverless hosts (mail servers can be slow)
+export const maxDuration = 60;
 
-export default async function ApplicationPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
+const savedMessages: Record<string, { text: string; tone: string }> = {
+  "": { text: "Changes saved.", tone: "bg-success-soft text-success" },
+  sent: { text: "Changes saved and the candidate was emailed.", tone: "bg-success-soft text-success" },
+  queued: { text: "Changes saved. The email to the candidate is being sent — refresh in a minute to see it under Emails.", tone: "bg-success-soft text-success" },
+  skipped: { text: "Changes saved. No email was sent because email sending isn’t set up yet.", tone: "bg-[#fff4d6] text-[#7a5200]" },
+  failed: { text: "Changes saved, but the email to the candidate failed. See Emails below.", tone: "bg-danger-soft text-danger" },
+};
+
+export default async function ApplicationPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; email?: string }> }) {
   await requireAdmin();
   const a = await getApplication(Number((await params).id));
   if (!a) notFound();
-  const { saved } = await searchParams;
+  const { saved, email } = await searchParams;
+  const flash = saved ? savedMessages[email ?? ""] ?? savedMessages[""] : null;
+  const emails = await listEmails("application", a.id);
   const ext = (u: string) => <a href={u} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{u}</a>;
 
   return (
@@ -61,15 +75,26 @@ export default async function ApplicationPage({ params, searchParams }: { params
           <form action={updateApplication} className="rounded-[12px] border border-line bg-white p-6">
             <input type="hidden" name="id" value={a.id} />
             <h2 className="text-base">Review</h2>
-            {saved && <p role="status" className="mt-3 rounded-[8px] bg-success-soft px-3 py-2 text-sm font-medium text-success">Changes saved.</p>}
+            {flash && <p role="status" className={`mt-3 rounded-[8px] px-3 py-2 text-sm font-medium ${flash.tone}`}>{flash.text}</p>}
             <label className="mt-4 block text-sm font-semibold text-ink" htmlFor="status">Status</label>
             <select id="status" name="status" defaultValue={a.status} className={`${adminInput} mt-1.5 w-full capitalize`}>
               {applicationStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
             <label className="mt-4 block text-sm font-semibold text-ink" htmlFor="notes">Internal notes</label>
             <textarea id="notes" name="notes" rows={5} defaultValue={a.notes} placeholder="Interview feedback, next steps…" className={`${adminInput} mt-1.5 h-auto w-full py-2.5`} />
+            <label className="mt-4 flex items-start gap-2.5 text-sm text-ink">
+              <input type="checkbox" name="notifyCandidate" className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent)]" />
+              <span>
+                <span className="font-semibold">Email the candidate about the new status</span>
+                <span className="mt-0.5 block text-[0.8125rem] text-muted">
+                  Sent only when the status changes to <span className="capitalize">{emailableStatuses.join(", ")}</span>. <Link href="/admin/emails" className="font-semibold text-accent hover:underline">Preview emails</Link>
+                </span>
+              </span>
+            </label>
             <button type="submit" className="mt-4 h-10 w-full rounded-[8px] bg-ink text-sm font-semibold text-white hover:bg-accent">Save changes</button>
           </form>
+
+          <EmailHistory configured={emailConfigured()} emails={emails.map((m) => ({ id: m.id, when: formatWhen(m.created_at), kind: m.kind, to: m.to_email, subject: m.subject, status: m.status, error: m.error }))} />
 
           <form action={deleteApplication}>
             <input type="hidden" name="id" value={a.id} />

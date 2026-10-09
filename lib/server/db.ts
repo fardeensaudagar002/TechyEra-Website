@@ -56,6 +56,18 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   ip         TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS email_log (
+  id          SERIAL PRIMARY KEY,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  kind        TEXT NOT NULL,
+  ref_type    TEXT NOT NULL,
+  ref_id      INTEGER NOT NULL,
+  to_email    TEXT NOT NULL,
+  subject     TEXT NOT NULL,
+  status      TEXT NOT NULL,
+  error       TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS email_log_ref_idx ON email_log (ref_type, ref_id);
 CREATE INDEX IF NOT EXISTS applications_created_idx ON applications (created_at DESC);
 CREATE INDEX IF NOT EXISTS enquiries_created_idx ON enquiries (created_at DESC);
 `;
@@ -79,17 +91,24 @@ async function createDriver(): Promise<Driver> {
     throw new Error("DATABASE_URL is not set. Add a PostgreSQL connection string to the environment (see README → Admin panel).");
   }
 
-  for (const stmt of SCHEMA.split(";").map((s) => s.trim()).filter(Boolean)) await driver.query(stmt);
   return driver;
 }
 
 // one driver per server process (survives hot reload in dev)
-const g = globalThis as unknown as { __techyeraDb?: Promise<Driver> };
+const g = globalThis as unknown as { __techyeraDb?: Promise<Driver>; __techyeraSchema?: { sql: string; ready: Promise<void> } };
 
 export async function query<T = Row>(text: string, params: unknown[] = []): Promise<T[]> {
   if (!g.__techyeraDb) {
     g.__techyeraDb = createDriver().catch((e) => { g.__techyeraDb = undefined; throw e; });
   }
   const db = await g.__techyeraDb;
+  // apply the schema on first use, and again whenever it changes (new tables appear without a restart)
+  if (g.__techyeraSchema?.sql !== SCHEMA) {
+    const ready = (async () => {
+      for (const stmt of SCHEMA.split(";").map((s) => s.trim()).filter(Boolean)) await db.query(stmt);
+    })().catch((e) => { g.__techyeraSchema = undefined; throw e; });
+    g.__techyeraSchema = { sql: SCHEMA, ready };
+  }
+  await g.__techyeraSchema!.ready;
   return (await db.query<T>(text, params)).rows;
 }

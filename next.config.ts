@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  serverExternalPackages: ["pg", "@electric-sql/pglite"],
+  serverExternalPackages: ["pg", "@electric-sql/pglite", "nodemailer"],
   images: { formats: ["image/avif", "image/webp"] },
   experimental: { optimizePackageImports: ["lucide-react", "framer-motion"] },
 };
