@@ -155,6 +155,20 @@ export const applicationReceived = (a: ApplicationData) =>
     footer: "You’re receiving this email because you applied for a role on our website. If this wasn’t you, you can safely ignore it.",
   });
 
+/** Sent from Admin → Email templates to check the email setup. */
+export const testEmail = () =>
+  build({
+    subject: "Test email from the Techyera website",
+    preheader: "Your website can send email.",
+    heading: "Email is working",
+    parts: [
+      { p: "This test was sent from **Admin → Email templates** on the Techyera website." },
+      { p: "If you’re reading this in your inbox, enquiry alerts, visitor confirmations and candidate updates will be delivered too." },
+    ],
+    cta: { label: "Open the admin panel", href: url("/admin") },
+    footer: "Test message — no action needed.",
+  });
+
 /* ------------------------------------------------------------------ */
 /* Application status updates (sent from the admin panel on request). */
 /* ------------------------------------------------------------------ */
