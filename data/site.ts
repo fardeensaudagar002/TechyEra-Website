@@ -16,7 +16,8 @@ export const site = {
 
   contact: {
     email: "support@techyera.co.in",
-    careersEmail: "careers@techyera.co.in",
+    /** Shown on careers pages. Uses the support inbox until a dedicated careers mailbox exists. */
+    careersEmail: "support@techyera.co.in",
     /** Replace with the real number — displayed as-is and used for tel: links when valid */
     phone: "+91 8770160684",
     phoneHref: "+918770160684", // digits only, used for tap-to-call links

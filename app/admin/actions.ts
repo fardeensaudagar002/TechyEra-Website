@@ -6,7 +6,10 @@ import { revalidatePath } from "next/cache";
 import { adminConfigured, checkPassword, createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/server/auth";
 import { requireAdmin } from "@/lib/server/session";
 import { query } from "@/lib/server/db";
-import { applicationStatuses, enquiryStatuses } from "@/lib/server/submissions";
+import { applicationStatuses, enquiryStatuses, getApplication } from "@/lib/server/submissions";
+import { emailConfigured, sendEmail } from "@/lib/server/email";
+import { after } from "next/server";
+import { applicationStatusEmail } from "@/lib/server/email-templates";
 
 const MAX_ATTEMPTS = 8; // failed sign-ins allowed per IP in 15 minutes
 
@@ -35,14 +38,30 @@ export async function updateApplication(form: FormData) {
   const id = Number(form.get("id"));
   const status = String(form.get("status"));
   if (!Number.isInteger(id) || !(applicationStatuses as readonly string[]).includes(status)) return;
+  const before = await getApplication(id);
+  if (!before) return;
   await query("UPDATE applications SET status = $1, notes = $2 WHERE id = $3", [status, String(form.get("notes") ?? "").slice(0, 5000), id]);
+
+  // Email the candidate only when asked, and only when the status actually changed to one with a template
+  let email = "";
+  const content = form.get("notifyCandidate") === "on" && status !== before.status
+    ? applicationStatusEmail(status, { fullName: before.full_name, jobTitle: before.job_title })
+    : null;
+  if (content) {
+    const send = () => sendEmail(before.email, content, { kind: `status:${status}`, refType: "application", refId: id });
+    // mail servers can be slow to answer, so a real send happens in the background after the page reloads
+    if (emailConfigured()) { after(send); email = "queued"; }
+    else email = await send();
+  }
+
   revalidatePath("/admin", "layout");
-  redirect(`/admin/applications/${id}?saved=1`);
+  redirect(`/admin/applications/${id}?saved=1${email ? `&email=${email}` : ""}`);
 }
 
 export async function deleteApplication(form: FormData) {
   await requireAdmin();
   await query("DELETE FROM applications WHERE id = $1", [Number(form.get("id"))]);
+  await query("DELETE FROM email_log WHERE ref_type = 'application' AND ref_id = $1", [Number(form.get("id"))]);
   revalidatePath("/admin", "layout");
   redirect("/admin/applications");
 }
@@ -60,6 +79,7 @@ export async function updateEnquiry(form: FormData) {
 export async function deleteEnquiry(form: FormData) {
   await requireAdmin();
   await query("DELETE FROM enquiries WHERE id = $1", [Number(form.get("id"))]);
+  await query("DELETE FROM email_log WHERE ref_type = 'enquiry' AND ref_id = $1", [Number(form.get("id"))]);
   revalidatePath("/admin", "layout");
   redirect("/admin/enquiries");
 }

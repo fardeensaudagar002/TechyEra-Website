@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Mail } from "lucide-react";
-import { adminInput, Detail, StatusBadge } from "@/components/admin/ui";
+import { adminInput, Detail, EmailHistory, StatusBadge } from "@/components/admin/ui";
 import { ConfirmSubmit } from "@/components/admin/ConfirmSubmit";
 import { requireAdmin } from "@/lib/server/session";
-import { enquiryStatuses, formatWhen, getEnquiry } from "@/lib/server/submissions";
+import { enquiryStatuses, formatWhen, getEnquiry, listEmails } from "@/lib/server/submissions";
+import { emailConfigured } from "@/lib/server/email";
 import { deleteEnquiry, updateEnquiry } from "../../actions";
 
 export const metadata = { title: "Enquiry" };
@@ -14,6 +15,7 @@ export default async function EnquiryPage({ params, searchParams }: { params: Pr
   const e = await getEnquiry(Number((await params).id));
   if (!e) notFound();
   const { saved } = await searchParams;
+  const emails = await listEmails("enquiry", e.id);
 
   return (
     <>
@@ -58,6 +60,7 @@ export default async function EnquiryPage({ params, searchParams }: { params: Pr
             <textarea id="notes" name="notes" rows={5} defaultValue={e.notes} placeholder="Call summary, next steps…" className={`${adminInput} mt-1.5 h-auto w-full py-2.5`} />
             <button type="submit" className="mt-4 h-10 w-full rounded-[8px] bg-ink text-sm font-semibold text-white hover:bg-accent">Save changes</button>
           </form>
+          <EmailHistory configured={emailConfigured()} emails={emails.map((m) => ({ id: m.id, when: formatWhen(m.created_at), kind: m.kind, to: m.to_email, subject: m.subject, status: m.status, error: m.error }))} />
           <form action={deleteEnquiry}>
             <input type="hidden" name="id" value={e.id} />
             <ConfirmSubmit message={`Permanently delete the enquiry from ${e.name}?`} className="text-sm font-semibold text-danger hover:underline">Delete this enquiry</ConfirmSubmit>

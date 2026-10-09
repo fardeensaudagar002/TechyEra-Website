@@ -1,9 +1,12 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { contactSchema } from "@/lib/forms";
 import { query } from "@/lib/server/db";
-import { notify } from "@/lib/server/notify";
+import { adminRecipients, sendEmail } from "@/lib/server/email";
+import { enquiryAlert, enquiryReceived } from "@/lib/server/email-templates";
 
 export const runtime = "nodejs";
+// gives the background emails time to finish on serverless hosts (mail servers can be slow)
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   let form: FormData;
@@ -22,10 +25,13 @@ export async function POST(req: Request) {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
       [v.name, v.company, v.email, v.phone, v.country, v.service, v.budget, v.message],
     );
-    await notify(`New enquiry from ${v.name} (${v.company})`, [
-      ["Name", v.name], ["Company", v.company], ["Email", v.email], ["Phone", v.phone], ["Country", v.country],
-      ["Service", v.service], ["Budget", v.budget], ["Message", v.message],
-    ], `/admin/enquiries/${row.id}`);
+    // emails go out after the response, so the visitor never waits on them
+    const data = { id: row.id, ...v };
+    const ref = { refType: "enquiry", refId: row.id } as const;
+    after(() => Promise.all([
+      sendEmail(adminRecipients(), enquiryAlert(data), { ...ref, kind: "alert" }),
+      sendEmail(v.email, enquiryReceived(data), { ...ref, kind: "confirmation" }),
+    ]));
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Failed to save enquiry", e);

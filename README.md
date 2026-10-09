@@ -52,7 +52,8 @@ Every job application and contact enquiry is saved to a database and shown in a 
 - **Job applications:** filter by position and status, search by name, email or city, download each resume, set a status (new, reviewing, shortlisted, interview, hired, rejected) and keep internal notes.
 - **Enquiries:** read each message, reply by email, set a status and keep notes.
 - **Download CSV** on either list opens in Excel or Google Sheets.
-- **Email alerts (optional):** set `RESEND_API_KEY` and `NOTIFY_EMAIL` to get an email for each new submission.
+- **Emails:** once email is set up, the site sends (1) a team alert to `support@techyera.co.in` for each new enquiry or application — replying to it answers the visitor directly, (2) a confirmation email to the visitor, and (3) optional status-update emails to candidates when you tick “Email the candidate” while changing an application’s status. Every email is listed on the enquiry/application page, and **Admin → Email templates** previews them all. Wording lives in `lib/server/email-templates.ts`.
+- **Email setup:** emails are sent from the `support@techyera.co.in` mailbox (GoDaddy Professional Email, powered by Titan). On your host set `SMTP_HOST=smtp.titan.email`, `SMTP_PORT=465`, `SMTP_USER=support@techyera.co.in` and `SMTP_PASS=<mailbox password>`, then redeploy. **Admin → Email templates** shows “Active” when it works. No DNS changes are needed. `NOTIFY_EMAIL` and `NOTIFY_FROM` are optional; `RESEND_API_KEY` is an alternative provider used only when SMTP is not configured.
 
 On your own computer no setup is needed: `npm run dev` stores submissions in a `.data` folder. Create `.env.local` with `ADMIN_PASSWORD=some-long-password` to sign in.
 
@@ -68,7 +69,7 @@ Protections built in: server-side validation of every field, resume type checked
 
 Any other host that runs Node.js and offers PostgreSQL works the same way: set the same environment variables.
 
-Email addresses such as `hello@techyera.co.in` and `careers@techyera.co.in` appear on the site. Create these mailboxes with an email provider (for example Google Workspace or Zoho Mail) so messages sent to them arrive.
+The site shows one address, `support@techyera.co.in` (set in `data/site.ts` → `contact.email`, with `careersEmail` for the careers pages). When a dedicated careers mailbox exists, change `careersEmail` to it.
 
 ## Built in
 
